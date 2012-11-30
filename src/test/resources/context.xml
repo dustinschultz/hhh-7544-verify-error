@@ -6,15 +6,36 @@
 
 	<jdbc:embedded-database id="dataSource" type="HSQL" />
 
+	<context:load-time-weaver aspectj-weaving="on" />
+
+	<context:annotation-config />
+
+	<context:spring-configured />
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		depends-on="org.springframework.context.config.internalBeanConfigurerAspect">
+		<property name="persistenceXmlLocation" value="persistence.xml" />
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="database" value="HSQL" />
+				<property name="showSql" value="true" />
+				<property name="generateDdl" value="true" />
+			</bean>
+		</property>
+		<property name="jpaPropertyMap">
+			<props>
+				<prop key="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</prop>
+				<prop key="hibernate.ejb.use_class_enhancer">true</prop>
+			</props>
+		</property>
+	</bean>
+
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
-		<property name="annotatedClasses">
-			<list>
-				<value>org.schultz.domain.PersonEntity</value>
-				<value>org.schultz.domain.ObservationEntity</value>
-			</list>
-		</property>
+		<property name="packagesToScan" value="org.schultz.domain" />
 	</bean>
 
 </beans>
